@@ -1,93 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smartwatch Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 28px;
-      color: #007bff;
-    }
-    .info {
-      font-size: 22px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-    .btn {
-      padding: 12px 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    .btn:hover {
-      background-color: #0056b3;
-    }
-    #container {
-      max-width: 400px;
-      margin: auto;
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; }
+        #container { max-width: 600px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { text-align: center; }
+        .info { font-size: 20px; margin: 10px 0; }
+        .btn { background: #007bff; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
 </head>
 <body>
-  <div id="container">
-    <h1>Smartwatch Dashboard</h1>
-    <p class="info">Step Count: <span id="stepCount">0</span></p>
-    <p class="info">Temperature: <span id="temperature">0.0 &#8451;</span></p>
-    <p class="info">Heart Rate: <span id="heartRate">0 BPM</span></p>
+
+<div id="container">
+    <h1>IoT Dashboard</h1>
+    <p class="info">Step Count: <span id="step-count">0</span></p>
+    <p class="info">Temperature: <span id="temperature">0.0</span> °C</p>
+    <p class="info">Heart Rate: <span id="heart-rate">0</span> bpm</p>
     <p class="info">Time: <span id="time">00:00:00</span></p>
-    <button class="btn" onclick="resetStepCount()">Reset Step Count</button>
-  </div>
+    <button class="btn" onclick="resetCount()">Reset Count</button>
+</div>
 
-  <script>
-    const esp32Url = "http://192.168.8.138"; // Replace with your ESP32's IP address
-
-    // Function to fetch data from ESP32
-    function fetchData() {
-      fetch(esp32Url + "/status")
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-          }
-          return response.json();
-        })
-        .then(data => {
-          document.getElementById('stepCount').textContent = data.stepCount;
-          document.getElementById('temperature').textContent = data.temperature + ' °C';
-          document.getElementById('heartRate').textContent = data.heartRate + ' BPM';
-          document.getElementById('time').textContent = data.time;
-        })
-        .catch(error => console.error('Error fetching data:', error));
+<script>
+    // Function to update the dashboard with data from the ESP32
+    async function fetchData() {
+        try {
+            const response = await fetch('http://YOUR_ESP32_IP'); // Replace with your ESP32's IP
+            const data = await response.json();
+            document.getElementById('step-count').innerText = data.stepCount;
+            document.getElementById('temperature').innerText = data.temperature.toFixed(1);
+            document.getElementById('heart-rate').innerText = data.heartRate;
+            document.getElementById('time').innerText = data.time;
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     }
 
-    // Function to reset step count on ESP32
-    function resetStepCount() {
-      fetch(esp32Url + "/reset")
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-          }
-          return response.json();
-        })
-        .then(data => {
-          document.getElementById('stepCount').textContent = data.stepCount;
-        })
-        .catch(error => console.error('Error resetting step count:', error));
+    // Function to reset the step count
+    function resetCount() {
+        fetch('http://YOUR_ESP32_IP/reset'); // Call the reset endpoint on your ESP32
+        fetchData(); // Update the displayed data
     }
 
-    // Automatically fetch data every 5 seconds
+    // Fetch data every 5 seconds
     setInterval(fetchData, 5000);
-  </script>
+    fetchData(); // Initial fetch
+</script>
+
 </body>
 </html>
