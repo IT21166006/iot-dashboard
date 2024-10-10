@@ -27,7 +27,7 @@
     // Function to update the dashboard with data from the ESP32
     async function fetchData() {
         try {
-            const response = await fetch('http://YOUR_ESP32_IP'); // Replace with your ESP32's IP
+            const response = await fetch('http://192.168.8.138'); // Replace with your ESP32's IP
             const data = await response.json();
             document.getElementById('step-count').innerText = data.stepCount;
             document.getElementById('temperature').innerText = data.temperature.toFixed(1);
