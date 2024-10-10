@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smartwatch Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 28px;
+      color: #007bff;
+    }
+    .info {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .btn {
+      padding: 12px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    #container {
+      max-width: 400px;
+      margin: auto;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Smartwatch Dashboard</h1>
+    <p class="info">Step Count: <span id="stepCount">0</span></p>
+    <p class="info">Temperature: <span id="temperature">0.0 &#8451;</span></p>
+    <p class="info">Heart Rate: <span id="heartRate">0 BPM</span></p>
+    <p class="info">Time: <span id="time">00:00:00</span></p>
+    <button class="btn" onclick="resetStepCount()">Reset Step Count</button>
+  </div>
+
+  <script>
+    const esp32Url = "http://192.168.8.138"; // Replace with your ESP32's IP address
+
+    // Function to fetch data from ESP32
+    function fetchData() {
+      fetch(esp32Url + "/status")
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+          }
+          return response.json();
+        })
+        .then(data => {
+          document.getElementById('stepCount').textContent = data.stepCount;
+          document.getElementById('temperature').textContent = data.temperature + ' °C';
+          document.getElementById('heartRate').textContent = data.heartRate + ' BPM';
+          document.getElementById('time').textContent = data.time;
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Function to reset step count on ESP32
+    function resetStepCount() {
+      fetch(esp32Url + "/reset")
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+          }
+          return response.json();
+        })
+        .then(data => {
+          document.getElementById('stepCount').textContent = data.stepCount;
+        })
+        .catch(error => console.error('Error resetting step count:', error));
+    }
+
+    // Automatically fetch data every 5 seconds
+    setInterval(fetchData, 5000);
+  </script>
+</body>
+</html>
